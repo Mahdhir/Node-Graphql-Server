@@ -20,8 +20,6 @@ mongoose.connect(dbURI, {
 }).then(res => app.listen(3000))
     .catch(err => console.log(err));
 
-
-
 app.use('/graphql', graphqlHTTP({
     schema: graphQlSchema,
     rootValue: graphQlResolvers,
