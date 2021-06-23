@@ -14,20 +14,24 @@ const rootValue = {
         }
 
     },
-    createEvent: async ({ eventInput }) => {
+    createEvent: async ({ eventInput },req) => {
+        if(!req.isAuth){
+            throw new Error('Unauthenticated');
+        }
+        const userId = req.userId;
         const event = new Event({
             title: eventInput.title,
             description: eventInput.description,
             price: +eventInput.price,
             date: new Date(eventInput.date),
-            creator: '60d094e112a56f23807eedd7'
+            creator: userId
         });
         try {
-            const result = await event.save();
-            const user = await User.findById('60d094e112a56f23807eedd7');
+            const user = await User.findById(userId);
             if (!user) {
                 throw new Error('User not found');
             }
+            const result = await event.save();
             user.createdEvents.push(event);
             await user.save();
             // return mapOutput(res,[{property:'date',type:'date'},{property:'creator',type:'user'}])

@@ -4,7 +4,10 @@ const Event = require('../../models/event');
 const { transformEvent,transformBooking } = require('../../helpers/merge');
 
 const rootValue = {
-    bookings: async () => {
+    bookings: async (args,req) => {
+        if(!req.isAuth){
+            throw new Error('Unauthenticated');
+        }
         try {
             const results = await Booking.find();
             // return mapOutput(results,[{property:'createdAt',type:'date'},{property:'updatedAt',type:'date'}]);
@@ -14,14 +17,18 @@ const rootValue = {
             throw error;
         }
     },
-    bookEvent: async ({ eventId }) => {
+    bookEvent: async ({ eventId },req) => {
+        if(!req.isAuth){
+            throw new Error('Unauthenticated');
+        }
+        const userId = req.userId;
         try {
             const fetchedEvent = await Event.findOne({ _id: eventId });
             if (!fetchedEvent) {
                 throw new Error('Event not found');
             }
             const booking = new Booking({
-                user: '60d094e112a56f23807eedd7',
+                user: userId,
                 event: fetchedEvent
             });
             const result = await booking.save();
@@ -32,7 +39,10 @@ const rootValue = {
         }
 
     },
-    cancelBooking: async ({ bookingId }) => {
+    cancelBooking: async ({ bookingId },req) => {
+        if(!req.isAuth){
+            throw new Error('Unauthenticated');
+        }
         try {
             const booking = await Booking.findById(bookingId).populate('event');
             if (!booking)

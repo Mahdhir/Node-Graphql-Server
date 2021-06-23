@@ -6,6 +6,7 @@ const depthLimit = require('graphql-depth-limit');
 
 const graphQlSchema = require('./graphql/schema/index');
 const graphQlResolvers = require('./graphql/resolvers/index');
+const isAuth = require('./middleware/is-auth');
 const dbURI = process.env.DB_URI;
 
 const app = express();
@@ -17,8 +18,13 @@ mongoose.connect(dbURI, {
     useUnifiedTopology: true,
     user: process.env.USER,
     pass: process.env.PASS
-}).then(res => app.listen(3000))
+}).then(res => {
+    app.listen(3000);
+    console.log("Listening on 3000")
+})
     .catch(err => console.log(err));
+
+app.use(isAuth);
 
 app.use('/graphql', graphqlHTTP({
     schema: graphQlSchema,
