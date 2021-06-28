@@ -9,7 +9,7 @@ const rootValue = {
             throw new Error('Unauthenticated');
         }
         try {
-            const results = await Booking.find();
+            const results = await Booking.find({user:req.userId});
             // return mapOutput(results,[{property:'createdAt',type:'date'},{property:'updatedAt',type:'date'}]);
 
             return results.map(transformBooking)
