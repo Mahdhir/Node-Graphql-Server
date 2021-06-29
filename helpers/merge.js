@@ -2,6 +2,7 @@ const DataLoader = require('dataloader');
 const Event = require('../models/event');
 const User = require('../models/user');
 const { dateToString } = require('../helpers/date');
+const { events } = require('../models/event');
 
 const eventLoader = new DataLoader((eventIds) => {
     return getEvents(eventIds);
@@ -14,7 +15,9 @@ const userLoader = new DataLoader((userIds) => {
 
 const getEvents = async (eventIDs) => {
     const results = await Event.find({ _id: { $in: eventIDs } });
-    // return mapOutput(res,[{property:'date',type:'date'},{property:'creator',type:'user'}]);
+    results.sort((a,b)=>{
+        eventIDs.indexOf(a._id.toString()) - eventIDs.indexOf(b._id.toString())
+    })
     return results.map(transformEvent);
 }
 
@@ -29,7 +32,7 @@ const getUser = async (userId) => {
     // return mapOutput(user,[{property:'createdEvents',type:'events'}]);
     return {
         ...user._doc,
-        createdEvents: eventLoader.loadMany.bind(this, user._doc.createdEvents)
+        createdEvents: () => eventLoader.loadMany(user._doc.createdEvents)
     }
 }
 
